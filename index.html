@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>That Level Again - WebGL Edition</title>
+
+  <!-- ====== STYLES ====== -->
   <style>
     body {
       margin: 0;
@@ -29,6 +31,7 @@
       font-size: 16px;
       padding: 6px 12px;
       margin: 4px;
+      cursor: pointer;
     }
 
     #hintBox {
@@ -42,7 +45,23 @@
       max-width: 250px;
       font-size: 14px;
     }
+
+    #levelPassedMsg {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      font-weight: bold;
+      color: white;
+      display: none;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px 40px;
+      border-radius: 10px;
+    }
   </style>
+
+  <!-- ====== SHADERS ====== -->
 
   <!-- Vertex Shader -->
   <script id="vertex-shader" type="x-shader/x-vertex">
@@ -67,22 +86,30 @@
     }
   </script>
 
-  <!-- JS libraries -->
-    <script src="./Common/initShaders.js"></script>
-    <script src="./Common/MVnew.js"></script>
-    <script src="main.js"></script>
+  <!-- ====== JS LIBRARIES & LOGIC ====== -->
+  <script src="./Common/initShaders.js"></script>
+  <script src="./Common/MVnew.js"></script>
+  <script src="main.js"></script>
 </head>
 
 <body>
+
+  <!-- Hint Box -->
   <div id="hintBox">Hint: Try pressing the button.</div>
 
+  <!-- Main Canvas -->
   <canvas id="gl-canvas" width="800" height="600">
     Your browser doesn't support the HTML5 canvas element.
   </canvas>
 
+  <!-- Level Passed Message -->
+  <div id="levelPassedMsg"> Level Passed </div>
+
+  <!-- Controls -->
   <div class="controls">
     <button id="resetLevel">🔄 Reset Level</button>
     <button id="nextCondition">🎲 New Condition</button>
   </div>
+
 </body>
 </html>
