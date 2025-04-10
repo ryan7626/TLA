@@ -35,6 +35,14 @@ window.onload = function init() {
   document.addEventListener("keydown", e => keys[e.key] = true);
   document.addEventListener("keyup", e => keys[e.key] = false);
 
+  document.getElementById("resetLevel").addEventListener("click", () => {
+    player.x = -0.8;
+    player.y = -0.7;
+    player.vx = 0;
+    player.vy = 0;
+  });
+  
+
   requestAnimationFrame(render);
 };
 
@@ -62,6 +70,33 @@ function updatePlayer() {
     player.y = -0.7;
     player.vy = 0;
     player.onGround = true;
+
+    // Platform collision
+    const platform = { x: -0.2, y: -0.4, width: 0.4, height: 0.05 };
+
+    const playerBottom = player.y;
+    const playerTop = player.y + player.height;
+    const playerRight = player.x + player.width;
+    const playerLeft = player.x;
+
+    const platBottom = platform.y;
+    const platTop = platform.y + platform.height;
+    const platRight = platform.x + platform.width;
+    const platLeft = platform.x;
+
+// Only check vertical collision from above
+if (
+  player.vy <= 0 && // falling
+  playerBottom >= platTop && // above platform
+  playerBottom + player.vy <= platTop && // will intersect top
+  playerRight > platLeft &&
+  playerLeft < platRight
+) {
+  player.y = platTop;
+  player.vy = 0;
+  player.onGround = true;
+}
+
   }
 }
 
