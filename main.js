@@ -1,75 +1,125 @@
 "use strict";
 
 let gl;
+let program;
 
-window.onload = function init() {
-    const canvas = document.getElementById("gl-canvas");
-    gl = canvas.getContext("webgl2");
-    if (!gl) {
-        alert("WebGL 2.0 isn't available");
-        return;
-    }
-
-    // Define positions and colors for static level objects
-    const levelData = [
-        // Floor
-        { pos: [-0.9, -0.8, 0.9, -0.8, 0.9, -0.7, -0.9, -0.7], color: [0.5, 0.5, 0.5, 1] },
-        // Platform
-        { pos: [-0.2, -0.4, 0.2, -0.4, 0.2, -0.35, -0.2, -0.35], color: [0.2, 0.7, 0.2, 1] },
-        // Spikes (triangle shape)
-        { pos: [-0.8, -0.7, -0.75, -0.7, -0.775, -0.65], color: [0.8, 0.1, 0.1, 1] },
-        // Button
-        { pos: [0.6, -0.8, 0.65, -0.8, 0.65, -0.75, 0.6, -0.75], color: [1, 0.6, 0, 1] },
-        // Door
-        { pos: [-0.05, -0.8, 0.05, -0.8, 0.05, -0.6, -0.05, -0.6], color: [0.2, 0.5, 1, 1] }
-    ];
-
-    // Flatten position and color data
-    const vertices = [];
-    const colors = [];
-    levelData.forEach(item => {
-        const [r, g, b, a] = item.color;
-        for (let i = 0; i < item.pos.length / 2; i++) {
-            vertices.push(item.pos[i * 2], item.pos[i * 2 + 1], 0);
-            colors.push(r, g, b, a);
-        }
-    });
-
-    // Create buffers
-    const vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-    const colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-
-    // Load shaders and get attribute/uniform locations
-    const program = initShaders(gl, "vertex-shader", "fragment-shader");
-    gl.useProgram(program);
-
-    const aPosition = gl.getAttribLocation(program, "aPosition");
-    const aColor = gl.getAttribLocation(program, "aColor");
-
-    // Enable vertex attributes
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(aPosition);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.vertexAttribPointer(aColor, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(aColor);
-
-    gl.clearColor(0.13, 0.13, 0.13, 1.0);
-    render(levelData.length);
+let player = {
+  x: -0.8,
+  y: -0.7,
+  width: 0.05,
+  height: 0.1,
+  vx: 0,
+  vy: 0,
+  onGround: false
 };
 
-function render(shapeCount) {
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    for (let i = 0; i < shapeCount; i++) {
-        gl.drawArrays(gl.TRIANGLE_FAN, i * 4, 4);
-    }
+const gravity = -0.002;
+const jumpStrength = 0.05;
+const moveSpeed = 0.01;
 
-    // Update the hint
-    document.getElementById("hintBox").textContent = "Hint: The button might open the door...";
+const keys = {};
+
+window.onload = function init() {
+  const canvas = document.getElementById("gl-canvas");
+  gl = canvas.getContext("webgl2");
+  if (!gl) {
+    alert("WebGL 2.0 isn't available");
+    return;
+  }
+
+  program = initShaders(gl, "vertex-shader", "fragment-shader");
+  gl.useProgram(program);
+  gl.clearColor(0.1, 0.1, 0.1, 1.0);
+
+  // Input handling
+  document.addEventListener("keydown", e => keys[e.key] = true);
+  document.addEventListener("keyup", e => keys[e.key] = false);
+
+  requestAnimationFrame(render);
+};
+
+function updatePlayer() {
+  // Horizontal movement
+  if (keys["ArrowRight"]) player.vx = moveSpeed;
+  else if (keys["ArrowLeft"]) player.vx = -moveSpeed;
+  else player.vx = 0;
+
+  // Jump
+  if (keys[" "] && player.onGround) {
+    player.vy = jumpStrength;
+    player.onGround = false;
+  }
+
+  // Gravity
+  player.vy += gravity;
+
+  // Position update
+  player.x += player.vx;
+  player.y += player.vy;
+
+  // Ground collision
+  if (player.y <= -0.7) {
+    player.y = -0.7;
+    player.vy = 0;
+    player.onGround = true;
+  }
+}
+
+function drawRect(x, y, width, height, color) {
+  const x1 = x;
+  const y1 = y;
+  const x2 = x + width;
+  const y2 = y + height;
+
+  const vertices = new Float32Array([
+    x1, y1, 0,
+    x2, y1, 0,
+    x2, y2, 0,
+    x1, y2, 0
+  ]);
+
+  const colors = new Float32Array([
+    ...color, ...color, ...color, ...color
+  ]);
+
+  const vBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+  const aPosition = gl.getAttribLocation(program, "aPosition");
+  gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(aPosition);
+
+  const cBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+  const aColor = gl.getAttribLocation(program, "aColor");
+  gl.vertexAttribPointer(aColor, 4, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(aColor);
+
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+}
+
+function render() {
+  updatePlayer();
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  // Floor
+  drawRect(-1, -0.8, 2, 0.1, [0.5, 0.5, 0.5, 1]);
+
+  // Platform (static example)
+  drawRect(-0.2, -0.4, 0.4, 0.05, [0.3, 0.7, 0.3, 1]);
+
+  // Button
+  drawRect(0.6, -0.8, 0.05, 0.05, [1, 0.6, 0, 1]);
+
+  // Door
+  drawRect(-0.05, -0.8, 0.1, 0.2, [0.2, 0.5, 1, 1]);
+
+  // Player
+  drawRect(player.x, player.y, player.width, player.height, [1, 1, 1, 1]);
+
+  // Hint
+  document.getElementById("hintBox").textContent = "Hint: Use ← → to move, SPACE to jump";
+
+  requestAnimationFrame(render);
 }
