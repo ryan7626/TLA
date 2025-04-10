@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>That Level Again - WebGL Edition</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #222;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    canvas {
+      display: block;
+      margin: 40px auto;
+      background: #111;
+      border: 1px solid #555;
+      width: 800px;
+      height: 600px;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .controls button {
+      font-size: 16px;
+      padding: 6px 12px;
+      margin: 4px;
+    }
+
+    #hintBox {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.75);
+      border: 1px solid #888;
+      border-radius: 5px;
+      max-width: 250px;
+      font-size: 14px;
+    }
+  </style>
+
+  <!-- Vertex Shader -->
+  <script id="vertex-shader" type="x-shader/x-vertex">
+    #version 300 es
+    in vec4 aPosition;
+    in vec4 aColor;
+    out vec4 vColor;
+    void main() {
+      gl_Position = aPosition;
+      vColor = aColor;
+    }
+  </script>
+
+  <!-- Fragment Shader -->
+  <script id="fragment-shader" type="x-shader/x-fragment">
+    #version 300 es
+    precision mediump float;
+    in vec4 vColor;
+    out vec4 fColor;
+    void main() {
+      fColor = vColor;
+    }
+  </script>
+
+  <!-- JS libraries -->
+  <script src="./Common/initShaders.js"></script>
+  <script src="./Common/MVnew.js"></script>
+  <script src="main.js"></script>
+</head>
+
+<body>
+  <div id="hintBox">Hint: Try pressing the button.</div>
+
+  <canvas id="gl-canvas" width="800" height="600">
+    Your browser doesn't support the HTML5 canvas element.
+  </canvas>
+
+  <div class="controls">
+    <button id="resetLevel">🔄 Reset Level</button>
+    <button id="nextCondition">🎲 New Condition</button>
+  </div>
+</body>
+</html>
