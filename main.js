@@ -16,6 +16,18 @@ let player = {
 const gravity = -0.002;
 const jumpStrength = 0.05;
 const moveSpeed = 0.01;
+const platform = {
+    x: -0.2,
+    y: -0.4,
+    width: 0.4,
+    height: 0.05
+  };
+  const solidRegions = [
+    { x: -0.2, y: -0.4, width: 0.4, height: 0.05 } // Example: a platform
+  ];
+  
+  
+  
 
 const keys = {};
 
@@ -46,59 +58,50 @@ window.onload = function init() {
   requestAnimationFrame(render);
 };
 
-function updatePlayer() {
-  // Horizontal movement
-  if (keys["ArrowRight"]) player.vx = moveSpeed;
-  else if (keys["ArrowLeft"]) player.vx = -moveSpeed;
-  else player.vx = 0;
+  function updatePlayer() {
+    const prevX = player.x;
+    const prevY = player.y;
 
-  // Jump
-  if (keys[" "] && player.onGround) {
-    player.vy = jumpStrength;
-    player.onGround = false;
-  }
-
-  // Gravity
-  player.vy += gravity;
-
-  // Position update
-  player.x += player.vx;
-  player.y += player.vy;
-
-  // Ground collision
+    // Ground collision
   if (player.y <= -0.7) {
     player.y = -0.7;
     player.vy = 0;
     player.onGround = true;
-
-    // Platform collision
-    const platform = { x: -0.2, y: -0.4, width: 0.4, height: 0.05 };
-
-    const playerBottom = player.y;
-    const playerTop = player.y + player.height;
-    const playerRight = player.x + player.width;
-    const playerLeft = player.x;
-
-    const platBottom = platform.y;
-    const platTop = platform.y + platform.height;
-    const platRight = platform.x + platform.width;
-    const platLeft = platform.x;
-
-// Only check vertical collision from above
-if (
-  player.vy <= 0 && // falling
-  playerBottom >= platTop && // above platform
-  playerBottom + player.vy <= platTop && // will intersect top
-  playerRight > platLeft &&
-  playerLeft < platRight
-) {
-  player.y = platTop;
-  player.vy = 0;
-  player.onGround = true;
-}
-
   }
-}
+  
+    // Movement input
+    if (keys["ArrowRight"]) player.vx = moveSpeed;
+    else if (keys["ArrowLeft"]) player.vx = -moveSpeed;
+    else player.vx = 0;
+  
+    // Jump
+    if (keys[" "] && player.onGround) {
+      player.vy = jumpStrength;
+      player.onGround = false;
+    }
+  
+    // Gravity
+    player.vy += gravity;
+  
+    // Predict next position
+    const nextX = player.x + player.vx;
+    const nextY = player.y + player.vy;
+  
+    // Try X move
+    player.x = nextX;
+    let collided = solidRegions.some(region => intersects(player, region));
+    if (collided) player.x = prevX;
+  
+    // Try Y move
+    player.y = nextY;
+    collided = solidRegions.some(region => intersects(player, region));
+    if (collided) {
+      if (player.vy < 0) player.onGround = true;
+      player.vy = 0;
+      player.y = prevY;
+    }
+  }
+  
 
 function drawRect(x, y, width, height, color) {
   const x1 = x;
@@ -158,3 +161,13 @@ function render() {
 
   requestAnimationFrame(render);
 }
+
+function intersects(a, b) {
+    return (
+      a.x < b.x + b.width &&
+      a.x + a.width > b.x &&
+      a.y < b.y + b.height &&
+      a.y + a.height > b.y
+    );
+  }
+  
