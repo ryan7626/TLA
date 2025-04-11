@@ -43,7 +43,7 @@
       border: 1px solid #888;
       border-radius: 5px;
       max-width: 250px;
-      font-size: 14px;
+      font-size: 15px;
     }
 
     #levelPassedMsg {
@@ -59,6 +59,15 @@
       padding: 20px 40px;
       border-radius: 10px;
     }
+    #levelindicator { 
+  position: absolute;
+  top: 10%; /* slightly higher, so it's closer to the top */
+  left: 50%;
+  transform: translateX(-50%); /* Only translate horizontally */
+  font-size: 24px;
+  color: red;
+  font-weight: bold;
+}
   </style>
 
   <!-- ====== SHADERS ====== -->
@@ -90,12 +99,16 @@
   <script src="./Common/initShaders.js"></script>
   <script src="./Common/MVnew.js"></script>
   <script src="main.js"></script>
+
+
 </head>
 
 <body>
+  <div id="levelindicator">Level 1</div> 
+  
 
   <!-- Hint Box -->
-  <div id="hintBox">Hint: Try pressing the button.</div>
+  <div id="hintBox">Press H to reveal Hint</div>
 
   <!-- Main Canvas -->
   <canvas id="gl-canvas" width="800" height="600">
@@ -106,9 +119,11 @@
   <div id="levelPassedMsg"> Level Passed </div>
 
   <!-- Controls -->
+   
   <div class="controls">
+    <button id="restartGame">🏠Restart Game</button>
     <button id="resetLevel">🔄 Reset Level</button>
-    <button id="nextCondition">🎲 New Condition</button>
+    <button id="nextLevel">🎲 Next level</button>
   </div>
 
 </body>
