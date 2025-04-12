@@ -1,158 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>That Level Again - WebGL Edition</title>
+  <head>
+    <meta charset="utf-8" />
+    <title>That Level Again - WebGL Edition</title>
 
-  <!-- ====== STYLES ====== -->
-  <style>
-    body {
-      margin: 0;
-      background-color: #222;
-      color: white;
-      font-family: sans-serif;
-    }
+    <style>
+      body {
+        margin: 0;
+        background-color: #222;
+        color: white;
+        font-family: sans-serif;
+      }
 
-    canvas {
-      display: block;
-      margin: 40px auto;
-      background: #111;
-      border: 1px solid #555;
-      width: 800px;
-      height: 600px;
-    }
+      canvas {
+        display: block;
+        margin: 40px auto;
+        background: #111;
+        border: 1px solid #555;
+        width: 800px;
+        height: 600px;
+      }
 
-    .controls {
-      text-align: center;
-      margin-top: 10px;
-    }
+      .controls {
+        text-align: center;
+        margin-top: 10px;
+      }
 
-    .controls button {
-      font-size: 16px;
-      padding: 6px 12px;
-      margin: 4px;
-      cursor: pointer;
-    }
+      .controls button {
+        font-size: 16px;
+        padding: 6px 12px;
+        margin: 4px;
+        cursor: pointer;
+      }
 
-    #hintBox {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      padding: 10px;
-      background-color: rgba(0, 0, 0, 0.75);
-      border: 1px solid #888;
-      border-radius: 5px;
-      max-width: 250px;
-      font-size: 15px;
-    }
-    #controlsBox {
-  position: absolute;
-  top: 20%;
-  left: 2%;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 15px;
-  border-radius: 10px;
-  font-size: 16px;
-  color: black;
-  width: 180px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
-}
-#controlsBox h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  text-align: center;
-  color: black;
-}
-#controlsBox p {
-  margin: 5px 0;
-}
+      #hintBox {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 10px;
+        background-color: rgba(0, 0, 0, 0.75);
+        border: 1px solid #888;
+        border-radius: 5px;
+        max-width: 250px;
+        font-size: 15px;
+      }
+      #controlsBox {
+        position: absolute;
+        top: 20%;
+        left: 2%;
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 16px;
+        color: black;
+        width: 180px;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+      }
+      #controlsBox h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        text-align: center;
+        color: black;
+      }
+      #controlsBox p {
+        margin: 5px 0;
+      }
+
+      #levelPassedMsg {
+        position: absolute;
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 32px;
+        font-weight: bold;
+        color: white;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.8);
+        padding: 20px 40px;
+        border-radius: 10px;
+      }
+      #levelindicator {
+        position: absolute;
+        top: 10%; 
+        left: 50%;
+        transform: translateX(-50%); 
+        font-size: 24px;
+        color: red;
+        font-weight: bold;
+      }
+    </style>
+
+    <!-- ====== SHADERS ====== -->
+
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      #version 300 es
+      in vec4 aPosition;
+      in vec4 aColor;
+      out vec4 vColor;
+      void main() {
+        gl_Position = aPosition;
+        vColor = aColor;
+      }
+    </script>
+
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      #version 300 es
+      precision mediump float;
+      in vec4 vColor;
+      out vec4 fColor;
+      void main() {
+        fColor = vColor;
+      }
+    </script>
+
+ 
+    <script src="./Common/initShaders.js"></script>
+    <script src="./Common/MVnew.js"></script>
+    <script src="main.js"></script>
+  </head>
+
+  <body>
+    <div id="controlsBox">
+      <h3>Controls</h3>
+      <p>⬅️ ➡️ : Move Left/Right</p>
+      <p>⬆️ or Space : Jump</p>
+      <p>H : Show Hint</p>
+    </div>
+    <div id="levelindicator">Level 1</div>
 
 
-    #levelPassedMsg {
-      position: absolute;
-      top: 25%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 32px;
-      font-weight: bold;
-      color: white;
-      display: none;
-      background-color: rgba(0, 0, 0, 0.8);
-      padding: 20px 40px;
-      border-radius: 10px;
-    }
-    #levelindicator { 
-  position: absolute;
-  top: 10%; /* slightly higher, so it's closer to the top */
-  left: 50%;
-  transform: translateX(-50%); /* Only translate horizontally */
-  font-size: 24px;
-  color: red;
-  font-weight: bold;
-}
-  </style>
+    <div id="hintBox">HINT!</div>
 
-  <!-- ====== SHADERS ====== -->
-
-  <!-- Vertex Shader -->
-  <script id="vertex-shader" type="x-shader/x-vertex">
-    #version 300 es
-    in vec4 aPosition;
-    in vec4 aColor;
-    out vec4 vColor;
-    void main() {
-      gl_Position = aPosition;
-      vColor = aColor;
-    }
-  </script>
-
-  <!-- Fragment Shader -->
-  <script id="fragment-shader" type="x-shader/x-fragment">
-    #version 300 es
-    precision mediump float;
-    in vec4 vColor;
-    out vec4 fColor;
-    void main() {
-      fColor = vColor;
-    }
-  </script>
-
-  <!-- ====== JS LIBRARIES & LOGIC ====== -->
-  <script src="./Common/initShaders.js"></script>
-  <script src="./Common/MVnew.js"></script>
-  <script src="main.js"></script>
+    <!-- Main Canvas -->
+    <canvas id="gl-canvas" width="800" height="600">
+      Your browser doesn't support the HTML5 canvas element.
+    </canvas>
 
 
-</head>
+    <div id="levelPassedMsg">Level Passed</div>
 
-<body>
-  <div id="controlsBox">
-    <h3>Controls</h3>
-    <p>⬅️ ➡️ : Move Left/Right</p>
-    <p>⬆️ or Space : Jump</p>
-    <p>H : Show Hint</p>
-  </div>
-  <div id="levelindicator">Level 1</div> 
-  
-
-  <!-- Hint Box -->
-  <div id="hintBox">HINT!</div>
-
-  <!-- Main Canvas -->
-  <canvas id="gl-canvas" width="800" height="600">
-    Your browser doesn't support the HTML5 canvas element.
-  </canvas>
-
-  <!-- Level Passed Message -->
-  <div id="levelPassedMsg"> Level Passed </div>
-
-  <!-- Controls -->
-   
-  <div class="controls">
-    <button id="restartGame">🏠Restart Game</button>
-    <button id="resetLevel">🔄 Reset Level</button>
-    <button id="nextLevel">🎲 Next level</button>
-  </div>
-
-</body>
+    <div class="controls">
+      <button id="restartGame">🏠Restart Game</button>
+      <button id="resetLevel">🔄 Reset Level</button>
+      <button id="nextLevel">🎲 Next level</button>
+    </div>
+  </body>
 </html>
