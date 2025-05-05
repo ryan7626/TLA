@@ -15,11 +15,26 @@
       canvas {
         display: block;
         margin: 40px auto;
-        background: #111;
         border: 1px solid #555;
         width: 800px;
         height: 600px;
       }
+
+      canvas#gl-canvas {
+        background: black;
+        position: relative;
+        z-index: 1;
+      }
+
+      canvas#fx-canvas {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none;
+        z-index: 2;
+      }
+
 
       .controls {
         text-align: center;
@@ -32,6 +47,7 @@
         margin: 4px;
         cursor: pointer;
       }
+
 
       #hintBox {
         position: absolute;
@@ -78,6 +94,7 @@
         background-color: rgba(0, 0, 0, 0.8);
         padding: 20px 40px;
         border-radius: 10px;
+        z-index: 3;
       }
       #levelindicator {
         position: absolute;
@@ -87,7 +104,10 @@
         font-size: 24px;
         color: red;
         font-weight: bold;
+        z-index: 3;
       }
+      
+
     </style>
 
     <!-- ====== SHADERS ====== -->
@@ -120,10 +140,28 @@
   </head>
 
   <body>
+    <!-- Background Music -->
+    <audio id="bgMusic" loop>
+      <source src="audio/bg-music.mp3" type="audio/mpeg" />
+    </audio>
+
+    <!-- Jump Sound -->
+    <audio id="jumpSound">
+      <source src="audio/jump.mp3" type="audio/mpeg" />
+    </audio>
+
+    <!-- Goal Sound -->
+    <audio id="goalSound">
+      <source src="audio/goal.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="deathSound">
+      <source src="audio/death.mp3" type="audio/mpeg" />
+    </audio>
+
     <div id="controlsBox">
       <h3>Controls</h3>
       <p>⬅️ ➡️ : Move Left/Right</p>
-      <p>⬆️ or Space : Jump</p>
+      <p>⬆️ : Jump</p>
       <p>H : Show Hint</p>
     </div>
     <div id="levelindicator">Level 1</div>
@@ -135,6 +173,9 @@
     <canvas id="gl-canvas" width="800" height="600">
       Your browser doesn't support the HTML5 canvas element.
     </canvas>
+    <canvas id="fx-canvas" width="800" height="600">
+    </canvas>
+
 
 
     <div id="levelPassedMsg">Level Passed</div>
