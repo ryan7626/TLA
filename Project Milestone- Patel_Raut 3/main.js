@@ -228,7 +228,7 @@ function updatePlayer() {
     else if (keys["ArrowLeft"]) player.vx = -moveSpeed;
     else player.vx = 0;
   
-    if ((keys[" "] && player.onGround) || (keys["ArrowUp"] && player.onGround) && (currentLevel == 1 || currentLevel==2||currentLevel ==5)) {
+    if ((keys["ArrowUp"] && player.onGround) && (currentLevel == 1 || currentLevel==2||currentLevel ==5)) {
       player.vy = jumpStrength;
       player.onGround = false;
   
