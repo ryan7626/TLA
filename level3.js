@@ -48,6 +48,6 @@ function startLevel3() {
   document.getElementById("levelPassedMsg").style.display = "none";
 
   // New hint for Level 3
-  currentHint = "Hint: You can’t jump... but something else can.";
+  currentHint = "Hint: You can’t jump... but something else can make you.";
   document.getElementById("hintBox").textContent = "Press H to reveal Hint";
 }
