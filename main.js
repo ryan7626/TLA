@@ -10,16 +10,24 @@ let bloodParticles = [];
 let confettiParticles = [];
 let tempPlatforms = [];
 let initPlatforms = [];
+const catImage     = new Image();
+const catJumpImage = new Image();
+const catDeadImage  = new Image();    
+catImage.src       = "models/cat.png";
+catJumpImage.src   = "models/cat_jump.png";
+catDeadImage.src   = "models/cat_dead.png"; 
 // Player state
 let player = {
   x: -0.8,
   y: -0.7,
-  width: 0.05,
+  width:  0.05,
   height: 0.1,
-  vx: 0,
-  vy: 0,
+  vx:     0,
+  vy:     0,
   onGround: false,
+  facing: "right", 
 };
+
 let currentHint = "Hint: Press the button to activate the goal";
 
 // Game constants
@@ -119,7 +127,7 @@ window.onload = function init() {
     restartGame();
   });
   const bgMusic = document.getElementById("bgMusic");
-  bgMusic.volume = 0.1;
+  bgMusic.volume = 1;
   bgMusic.play().catch((e) => {
     console.warn("Music play blocked until user interaction.");
   });
@@ -209,9 +217,15 @@ function updatePlayer() {
   // Movement input
   if (currentLevel == 4) {
     // Flipped control scheme
-    if (keys["ArrowRight"]) player.vx = -moveSpeed;  // Right = Left
-    else if (keys["ArrowUp"]) player.vx = moveSpeed; // Up = Right
-    else player.vx = 0;
+    if (keys["ArrowRight"]) {
+      player.vx     = -moveSpeed;  // Right key moves you left
+      player.facing =  "left";
+    } else if (keys["ArrowUp"]) {
+      player.vx     =  moveSpeed;  // Up key moves you right
+      player.facing =  "right";
+    } else {
+      player.vx = 0;
+    }
   
     if (keys["ArrowLeft"] && player.onGround) {      // Left = Jump
       player.vy = jumpStrength;
@@ -224,9 +238,16 @@ function updatePlayer() {
     }
   } else {
     // Normal controls
-    if (keys["ArrowRight"]) player.vx = moveSpeed;
-    else if (keys["ArrowLeft"]) player.vx = -moveSpeed;
-    else player.vx = 0;
+      if (keys["ArrowRight"]) {
+        player.vx = moveSpeed;
+        player.facing = "right";
+      } else if (keys["ArrowLeft"]) {
+        player.vx = -moveSpeed;
+        player.facing = "left";
+      } else {
+        player.vx = 0;
+      }
+
   
     if ((keys["ArrowUp"] && player.onGround) && (currentLevel == 1 || currentLevel==2||currentLevel ==5)) {
       player.vy = jumpStrength;         
@@ -426,11 +447,41 @@ function render() {
 
   // Draw spikes
   spikes.forEach((spike) => drawSpike(spike.x, spike.y, spike.dir));
-
-  // Draw player
-  drawRect(player.x, player.y, player.width, player.height, [1, 1, 1, 1]);
-
+  
   fxCtx.clearRect(0, 0, 800, 600);
+
+  const CAT_SCALE    = 2;
+  const CAT_Y_OFFSET = -10;
+
+  // center of the collision box in pixels
+  const px = (player.x + player.width*1.5) * 400 + 400;
+  const py = (1 - (player.y + player.height*0.5)) * 300 + CAT_Y_OFFSET;
+
+  // sprite size in px
+  const baseW = player.width  * 400;  // 20px
+  const baseH = player.height * 300;  // 30px
+  const w     = baseW * CAT_SCALE + 15;    // e.g. 40px
+  const h     = baseH * CAT_SCALE;    // e.g. 60px
+
+  // choose the right image:
+  let img;
+  if (isPaused && !levelPassed) {
+    // the cat just died
+    img = catDeadImage;
+  } else {
+    // normal or jumping
+    img = player.onGround ? catImage : catJumpImage;
+  }
+
+  fxCtx.save();
+  if (player.facing === "left") {
+    fxCtx.translate(px, 0);
+    fxCtx.scale(-1, 1);
+    fxCtx.drawImage(img, -w/2, py - h/2, w, h);
+  } else {
+    fxCtx.drawImage(img, px - w/2, py - h/2, w, h);
+  }
+  fxCtx.restore();
 
   // Blood particles
   bloodParticles.forEach((p) => {
