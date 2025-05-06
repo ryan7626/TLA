@@ -458,7 +458,7 @@ function render() {
   const CAT_Y_OFFSET = -8;
 
   // center of the collision box in pixels
-  const px = (player.x + player.width*2.8) * 400 + 400;
+  const px = (player.x + player.width*0.5) * 400 + 400;
   const py = (1 - (player.y + player.height*0.5)) * 300 + CAT_Y_OFFSET;
 
   // sprite size in px
