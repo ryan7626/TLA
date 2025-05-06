@@ -73,7 +73,16 @@ window.onload = function init() {
 
     return;
   }
+  function startMusicOnce() {
+    const bgMusic = document.getElementById("bgMusic");
+    bgMusic.volume = 0.5;
+    bgMusic.play().catch(err => console.warn("Autoplay blocked:", err));
+    window.removeEventListener("click", startMusicOnce);
+    window.removeEventListener("keydown", startMusicOnce);
+  }
 
+  window.addEventListener("click", startMusicOnce);
+  window.addEventListener("keydown", startMusicOnce);
   program = initShaders(gl, "vertex-shader", "fragment-shader");
   gl.useProgram(program);
   gl.clearColor(0.1, 0.1, 0.1, 1.0);
@@ -125,11 +134,6 @@ window.onload = function init() {
     isPaused = false;
     tempPlatforms = initPlatforms.map(p => ({ ...p }));
     restartGame();
-  });
-  const bgMusic = document.getElementById("bgMusic");
-  bgMusic.volume = 1;
-  bgMusic.play().catch((e) => {
-    console.warn("Music play blocked until user interaction.");
   });
 
   requestAnimationFrame(render);
@@ -451,16 +455,16 @@ function render() {
   fxCtx.clearRect(0, 0, 800, 600);
 
   const CAT_SCALE    = 2;
-  const CAT_Y_OFFSET = -10;
+  const CAT_Y_OFFSET = -8;
 
   // center of the collision box in pixels
-  const px = (player.x + player.width*1.5) * 400 + 400;
+  const px = (player.x + player.width*2.8) * 400 + 400;
   const py = (1 - (player.y + player.height*0.5)) * 300 + CAT_Y_OFFSET;
 
   // sprite size in px
-  const baseW = player.width  * 400;  // 20px
+  const baseW = player.width  * 300;  // 20px
   const baseH = player.height * 300;  // 30px
-  const w     = baseW * CAT_SCALE + 15;    // e.g. 40px
+  const w     = baseW * CAT_SCALE + 20;    // e.g. 40px
   const h     = baseH * CAT_SCALE;    // e.g. 60px
 
   // choose the right image:
