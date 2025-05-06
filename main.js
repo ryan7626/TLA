@@ -229,7 +229,7 @@ function updatePlayer() {
     else player.vx = 0;
   
     if ((keys["ArrowUp"] && player.onGround) && (currentLevel == 1 || currentLevel==2||currentLevel ==5)) {
-      player.vy = jumpStrength;
+      player.vy = jumpStrength;         
       player.onGround = false;
   
       const jumpSound = document.getElementById("jumpSound");
