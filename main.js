@@ -327,7 +327,7 @@ function updatePlayer() {
   if (intersects(player, button)) goalActivated = true;
   if (
     (currentLevel === 1 || currentLevel === 2) &&
-    ((keys[" "] && player.onGround) || (keys["ArrowUp"] && player.onGround))
+    ((keys["ArrowUp"] && player.onGround))
   ) {
     player.vy = jumpStrength;
     player.onGround = false;
