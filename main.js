@@ -75,7 +75,7 @@ window.onload = function init() {
   }
   function startMusicOnce() {
     const bgMusic = document.getElementById("bgMusic");
-    bgMusic.volume = 0.5;
+    bgMusic.volume = 0.1;
     bgMusic.play().catch(err => console.warn("Autoplay blocked:", err));
     window.removeEventListener("click", startMusicOnce);
     window.removeEventListener("keydown", startMusicOnce);
