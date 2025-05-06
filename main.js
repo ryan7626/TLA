@@ -427,37 +427,15 @@ function render() {
     updatePlayer();
   }
   gl.clear(gl.COLOR_BUFFER_BIT);
-  
-  function drawCheckerRect(x, y, width, height,
-    lightColor, darkColor,
-    cols = 4, rows = 2) {
-      const cellW = width  / cols;
-      const cellH = height / rows;
-      for (let i = 0; i < cols; i++) {
-      for (let j = 0; j < rows; j++) {
-      const isLight = (i + j) % 2 === 0;
-      const color = isLight ? lightColor : darkColor;
-      drawRect(
-      x + i * cellW,
-      y + j * cellH,
-      cellW,
-      cellH,
-      color
-      );
-      }
-    }
-  }
 
   // Draw level platforms
-  const light = [0.5,0.5,0.5,1],
-      dark  = [0.3,0.3,0.3,1];
-
-    solidRegions.forEach(r =>
-      drawCheckerRect(r.x, r.y, r.width, r.height, light, dark, 6, 2)
-    );
-    tempPlatforms.forEach(r =>
-      drawCheckerRect(r.x, r.y, r.width, r.height, light, dark, 6, 2)
-    );
+  solidRegions.forEach(r =>
+    drawRect(r.x, r.y, r.width, r.height, [0.4,0.4,0.4,1])
+  );
+  tempPlatforms.forEach(r =>
+    drawRect(r.x, r.y, r.width, r.height, [0.4,0.4,0.4,1])
+  );
+  
 
   
 
